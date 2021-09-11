@@ -6,7 +6,7 @@ CC=cc ${INC_PATH} ${LIB_PATH} -Wall
 INSTALL_BIN=/usr/X11R6/bin
 INSTALL_MAN1=/usr/X11R6/man/man1
 
-all: xkbset xkbset.1.gz
+all: xkbset xkbset.1
 
 xkbset: getargs.o print.o usage.o main.o misc.o
 	${CC} getargs.o print.o usage.o main.o misc.o -o $@ ${LIBS}
@@ -39,13 +39,13 @@ config_usage:
 	rm -f config_usage
 	ln -s config_getargs config_usage
 
-xkbset.1.gz: xkbset.man
-	gzip -c xkbset.man > xkbset.1.gz
+xkbset.1: xkbset.man
+	cp xkbset.man xkbset.1
 
 install: all
 	install -c -s xkbset ${INSTALL_BIN}
 	install -c mskacc-gui ${INSTALL_BIN}
-	cp xkbset.1.gz ${INSTALL_MAN1}/.
+	cp xkbset.1 ${INSTALL_MAN1}/.
 
 clean:
-	rm -f *.o getargs.c print.c usage.c *.core xkbset config_usage xkbset.1.gz
+	rm -f *.o getargs.c print.c usage.c *.core xkbset config_usage xkbset.1

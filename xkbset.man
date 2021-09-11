@@ -25,7 +25,7 @@
 .\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 .\" POSSIBILITY OF SUCH DAMAGE.
 .\" 
-.TH XSET 1 "Release 6.4" "X Version 11"
+.TH XKBSET 1 "Release 6.4" "X Version 11"
 .SH NAME
 xkbset - user preference utility for XKB extensions for X
 .SH SYNOPSIS
@@ -151,12 +151,16 @@ to set the time in milliseconds after the key is pressed before autorepeat
 will start, and optionally the time in milliseconds between the key
 repeats.
 .SH BUGS
-Right now mousekeys acceleration does not work properly.  Also, the
+In some earlier versions of X, some of the features do not work
+properly.  For example, 
+mousekeys acceleration.  Also, the
 .B perkeyrepeat
 option (or
 .B repeatkey
-followed by a key code) do not work.  These are due to bugs in the
-XKB extensions.  These bugs should be fixed in future versions of X.
+followed by a key code) did not work.  These are due to bugs in the
+XKB extensions.  These bugs are fixed in more recent versions of X.
+
+Also the man page is woefully incomplete.
 .SH "SEE ALSO"
 xset(1)
 .SH AUTHOR
