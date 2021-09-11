@@ -1,0 +1,217 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2000 Stephen Montgomery-Smith
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 3. Neither the name of Stephen Montgomery-Smith nor the names of his 
+#    contributors may be used to endorse or promote products derived from 
+#    this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE STEPHEN MONTGOMERY-SMITH AND CONTRIBUTORS 
+# ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED 
+# TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+# PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL STEPHEN MONTGOMERY-SMITH OR 
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+# OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+# POSSIBILITY OF SUCH DAMAGE.
+
+open(PRINTC,">print.c");
+
+open(CONFIG,"config_print");
+
+$output = '';
+$outputline = '';
+$last_needs_mask = '';
+$last_needs_enum = '';
+
+while ($line = <CONFIG>) {
+  next if $line =~ /^\#/ || $line =~ /^\s*$/;
+
+  if ($line =~ /^[A-Z]/) {
+    ($type,$field,@title) = split ' ',$line;
+    $title = join ' ',@title;
+
+    if ($type =~ /^MASK\_(.*)$/) {
+      $output .= "printf(\"$title = %s\\n\", (ctrls->$field & $1)?\"On\":\"Off\");\n";
+      die "mask error\n" if !$last_needs_mask;
+      $outputline .= "printf(\" %s\",\"$last_needs_mask\" + ((ctrls->$field & $1) != 0));\n";
+      $last_needs_mask = '';
+    }
+    elsif ($last_needs_mask) {
+      die "mask error\n";
+    }
+    elsif ($type =~/^(USHORT|SHORT|UCHAR)$/) {
+      $output .= "printf(\"$title = %d\\n\", ctrls->$field);\n";
+      $outputline .= "printf(\" %d\", ctrls->$field);\n";
+    }
+    elsif ($type eq 'CHAR_ARRAY_32') {
+      $output .= "printf(\"$title =\");\n" .
+                 "for (i=0;i<32;i++) {\n" .
+                 "  if (i%8==0) printf(\"\\n        \");\n" .
+                 "  printf(\"%x%x\",ctrls->$field\[i]>>4,ctrls->$field\[i]&15);\n" .
+                 "}\n" .
+                 "printf(\"\\n\");\n";
+      $outputline .= "printf(\" \");\n" .
+                     "for (i=0;i<32;i++)\n" .
+                     "  printf(\"%x%x\",ctrls->$field\[i]>>4,ctrls->$field\[i]&15);\n";
+    }
+    elsif ($type eq 'HIGH_NIBBLE_ENUM') {
+      die "enum error\n" if !$last_needs_enum;
+      $output .= "printf(\"$title = \");\n";
+      $outputline .= "s = NULL;\n";
+      $line = <CONFIG>;
+      $line =~ s/\s//g;
+      $first = 1;
+      foreach $enum (split ',',$line) {
+        ($code,$value) = split '=',$enum;
+        $output .= (!$first?"else ":"") .
+                   "if ((ctrls->$field & 0xF0) == $value) printf(\"$code\\n\");\n";
+        $outputline .= (!$first?"else ":"") .
+                   "if ((ctrls->$field & 0xF0)== $value) s = \"$code\";\n";
+        $first = 0;
+      }
+      $output .= "else printf(\"undefined\\n\");\n";
+      $outputline .= "if (s!=NULL) printf(\" " . substr($last_needs_enum,1) . " %s\",s);\n";
+      $last_needs_enum = 0;
+    }
+    elsif ($type eq 'LOW_NIBBLE_IF_HIGH_NIBBLE_ENUM') {
+      $output .= "printf(\"$title = %d\\n\", ctrls->$field & 0x0F);\n";
+      $outputline .= "print_nibble = 0;\n";
+      $line = <CONFIG>;
+      $line =~ s/\s//g;
+      $first = 1;
+      foreach $enum (split ',',$line) {
+        ($code,$value) = split '=',$enum;
+        $outputline .= (!$first?"else ":"") .
+                   "if ((ctrls->$field & 0xF0)== $value) print_nibble = 1;\n";
+        $first = 0;
+      }
+      $outputline .= "if (print_nibble) printf(\" %d\", ctrls->$field & 0x0F);\n";
+      $last_needs_enum = 0;
+    }
+    else {
+      die "syntax error";
+    }
+  }
+  else {
+    chomp($line);
+    if ($line =~ /^\-/) {
+      $last_needs_mask = $line;
+    }
+    elsif ($line =~ /^\+/) {
+      $last_needs_enum = $line;
+    }
+    else {
+      $outputline .= "printf(\" $line\");\n";
+    }
+  }
+}
+
+$output =~ s/^/  /gm;
+$outputline =~ s/^/  /gm;
+
+close CONFIG;
+
+open(COPY,"COPYRIGHT");
+$copy = join '',<COPY>;
+print PRINTC <<EOM;
+/*
+$copy
+*/
+
+#include "xkbset.h"
+
+void print_controls(XkbControlsPtr ctrls) {
+  int i;
+
+$output
+}
+
+void print_controls_in_line(XkbControlsPtr ctrls) {
+  int i;
+  char *s;
+  int print_nibble;
+
+  printf(\"xkbset\");
+$outputline
+  printf(\"\\n\");
+}
+EOM
+
+
+########
+
+open(CONFIG,"config_print");
+
+$output = '';
+$outputline = '';
+$last_needs_mask = '';
+
+while ($line = <CONFIG>) {
+  next if $line =~ /^\#/ || $line =~ /^\s*$/;
+
+  if ($line =~ /^[A-Z]/) {
+    ($type,$field,@title) = split ' ',$line;
+    $title = join ' ',@title;
+
+    if ($type =~ /^MASK\_(.*)$/) {
+      if ($field eq 'enabled_ctrls') {
+        ($axmask,$axvalues) = ('axt_ctrls_mask','axt_ctrls_values');
+      }
+      elsif ($field eq 'ax_options') {
+        ($axmask,$axvalues) = ('axt_opts_mask','axt_opts_values');
+      }
+      else {
+        ($axmask,$axvalues) = ('','');
+      }
+      if ($axmask) {
+        $output .= "printf(\"Upon Expiry $title will be: %s\\n\",\n" .
+                   "  (ctrls->$axmask & $1)?((ctrls->$axvalues & $1)?\"On\":\"Off\"):\"Unchanged\");\n";
+        $t = substr $last_needs_mask,1;
+        $outputline .= "printf(\" %s$t\",\n" .
+                       "  (ctrls->$axmask & $1)?((ctrls->$axvalues & $1)?\"\":\"-\"):\"=\");\n";
+        $last_needs_mask = '';
+      }
+    }
+    elsif ($last_needs_mask) {
+      die "mask error\n";
+    }
+  }
+  else {
+    chomp($line);
+    if ($line =~ /^\-/) {
+      $last_needs_mask = $line;
+    }
+  }
+}
+
+$output =~ s/^/  /gm;
+$outputline =~ s/^/  /gm;
+
+close CONFIG;
+
+print PRINTC <<EOM
+
+void print_expire_controls(XkbControlsPtr ctrls) {
+  printf(\"AccessX Timeout = %d\\n\",ctrls->ax_timeout);
+$output
+}
+
+void print_expire_controls_in_line(XkbControlsPtr ctrls) {
+  printf(\"xkbset exp %d\",ctrls->ax_timeout);
+$outputline
+  printf(\"\\n\");
+}
+EOM

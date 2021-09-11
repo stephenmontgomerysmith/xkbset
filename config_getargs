@@ -1,0 +1,189 @@
+# Copyright (c) 2000 Stephen Montgomery-Smith
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 3. Neither the name of Stephen Montgomery-Smith nor the names of his 
+#    contributors may be used to endorse or promote products derived from 
+#    this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE STEPHEN MONTGOMERY-SMITH AND CONTRIBUTORS 
+# ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED 
+# TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+# PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL STEPHEN MONTGOMERY-SMITH OR 
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+# OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+# POSSIBILITY OF SUCH DAMAGE.
+
+#C To switch the bell on or off:
+bell | b:
+MASK_XkbAudibleBellMask enabled_ctrls XkbControlsEnabledMask;
+
+#C To switch one key to autorepeat or not:
+repeatkeys %d|r %d:
+BIT32 per_key_repeat XkbPerKeyRepeatMask;
+
+#C To send a hex mask for all keys to autorepeat or not
+perkeyrepeat %64x:
+CHAR_ARRAY32 per_key_repeat XkbPerKeyRepeatMask;
+
+#C To switch autorepeat on or off, and optionally set the delay before
+#C the first repeat and the interval between repeats:
+repeatkeys|r:
+MASK_XkbRepeatKeysMask enabled_ctrls XkbControlsEnabledMask {
+  rate %d:
+  USHORT repeat_delay XkbRepeatKeysMask {
+    %d:
+    USHORT repeat_interval XkbRepeatKeysMask;
+  }
+}
+
+#C To switch mousekeys on or off, and optionally set the default
+#C button (whatever that is):
+mousekeys | m:
+MASK_XkbMouseKeysMask enabled_ctrls XkbControlsEnabledMask {
+  %d:
+  UCHAR mk_dflt_btn XkbMouseKeysMask;
+}
+
+#C To switch mousekeys acceleration on or off, and optionally set
+#C the acceleration characteristics:
+mousekeysaccel | ma:
+MASK_XkbMouseKeysAccelMask enabled_ctrls XkbControlsEnabledMask {
+  %d %d %d %d %d:
+  USHORT mk_delay XkbMouseKeysAccelMask,
+  USHORT mk_interval XkbMouseKeysAccelMask,
+  USHORT mk_time_to_max XkbMouseKeysAccelMask,
+  USHORT mk_max_speed XkbMouseKeysAccelMask,
+  SHORT mk_curve XkbMouseKeysAccelMask;
+}
+
+#C To switch AccessX on (so pressing shift five times starts sticky keys
+#C and pressing the shift key down 8 seconds starts slow keys):
+accessx | a:
+MASK_XkbAccessXKeysMask enabled_ctrls XkbControlsEnabledMask;
+
+#C To switch sticky keys on or off, and optionally set or reset:
+#C () two keys pressed at the same time stops sticky keys;
+#C () a modifier pressed twice will be locked:
+sticky | st:
+MASK_XkbStickyKeysMask enabled_ctrls XkbControlsEnabledMask {
+  twokey:
+  MASK_XkbAX_TwoKeysMask ax_options XkbStickyKeysMask;
+  latchlock:
+  MASK_XkbAX_LatchToLockMask ax_options XkbStickyKeysMask;
+}
+
+#C To switch on slowkeys, and optionally set the slow key delay:
+slowkeys | sl:
+MASK_XkbSlowKeysMask enabled_ctrls XkbControlsEnabledMask {
+  %d:
+  USHORT slow_keys_delay XkbSlowKeysMask;
+}
+
+#C To switch on bouncekeys, and optionally set the time for which
+#C if the key is pressed again in that time it will not work:
+bouncekeys | bo:
+MASK_XkbBounceKeysMask enabled_ctrls XkbControlsEnabledMask {
+  %d:
+  USHORT debounce_delay XkbBounceKeysMask;
+}
+
+#C To switch on audible feedback, and optionally set which features
+#C cause the feedback (note [-]feature means that switching
+#C one of the AccessX features on of off causes feedback):
+feedback | f:
+MASK_XkbAccessXFeedbackMask enabled_ctrls XkbControlsEnabledMask {
+  dumbbell:
+  MASK_XkbAX_DumbBellFBMask ax_options XkbAccessXFeedbackMask;
+  led:
+  MASK_XkbAX_IndicatorFBMask ax_options XkbAccessXFeedbackMask;
+  feature:
+  MASK_XkbAX_FeatureFBMask ax_options XkbAccessXFeedbackMask;
+  slowwarn:
+  MASK_XkbAX_SlowWarnFBMask ax_options XkbAccessXFeedbackMask;
+  slowpress:
+  MASK_XkbAX_SKPressFBMask ax_options XkbAccessXFeedbackMask;
+  slowaccept:
+  MASK_XkbAX_SKAcceptFBMask ax_options XkbAccessXFeedbackMask;
+  slowreject:
+  MASK_XkbAX_SKRejectFBMask ax_options XkbAccessXFeedbackMask;
+  slowrelease:
+  MASK_XkbAX_SKReleaseFBMask ax_options XkbAccessXFeedbackMask;
+  bouncereject:
+  MASK_XkbAX_BKRejectFBMask ax_options XkbAccessXFeedbackMask;
+  stickybeep:
+  MASK_XkbAX_StickyKeysFBMask ax_options XkbAccessXFeedbackMask;
+}
+
+#C To switch keyboard overlays 1 or 2 on or off:
+overlay1 | ov1:
+MASK_XkbOverlay1Mask enabled_ctrls XkbControlsEnabledMask;
+overlay2 | ov2:
+MASK_XkbOverlay2Mask enabled_ctrls XkbControlsEnabledMask;
+
+#C To select the group wrap type (now what is that)?
+groupswrap %e {
+  redirect = XkbRedirectIntoRange;
+  clamp = XkbClampIntoRange;
+  wrap = XkbWrapIntoRange }:
+HIGH_NIBBLE_ENUM groups_wrap XkbGroupsWrapMask {
+  %d:
+  LOW_NIBBLE groups_wrap XkbGroupsWrapMask;
+}
+
+#C What is this?
+ignoregrouplock:
+MASK_XkbIgnoreGroupLockMask enabled_ctrls XkbControlsEnabledMask;
+
+#C To cause some of the key modifiers (like shift, num-lock=mod2, etc)
+#C to not work:
+nullify: {
+shift:
+MASK_ShiftMask "internal.real_mods" XkbInternalModsMask;
+lock:
+MASK_LockMask "internal.real_mods" XkbInternalModsMask;
+control:
+MASK_ControlMask "internal.real_mods" XkbInternalModsMask;
+mod1:
+MASK_Mod1Mask "internal.real_mods" XkbInternalModsMask;
+mod2:
+MASK_Mod2Mask "internal.real_mods" XkbInternalModsMask;
+mod3:
+MASK_Mod3Mask "internal.real_mods" XkbInternalModsMask;
+mod4:
+MASK_Mod4Mask "internal.real_mods" XkbInternalModsMask;
+mod5:
+MASK_Mod5Mask "internal.real_mods" XkbInternalModsMask;
+}
+
+#C What is this?
+ignorelock: {
+shift:
+MASK_ShiftMask "ignore_lock.real_mods" XkbIgnoreLockModsMask;
+lock:
+MASK_LockMask "ignore_lock.real_mods" XkbIgnoreLockModsMask;
+control:
+MASK_ControlMask "ignore_lock.real_mods" XkbIgnoreLockModsMask;
+mod1:
+MASK_Mod1Mask "ignore_lock.real_mods" XkbIgnoreLockModsMask;
+mod2:
+MASK_Mod2Mask "ignore_lock.real_mods" XkbIgnoreLockModsMask;
+mod3:
+MASK_Mod3Mask "ignore_lock.real_mods" XkbIgnoreLockModsMask;
+mod4:
+MASK_Mod4Mask "ignore_lock.real_mods" XkbIgnoreLockModsMask;
+mod5:
+MASK_Mod5Mask "ignore_lock.real_mods" XkbIgnoreLockModsMask;
+}
+

@@ -1,0 +1,147 @@
+.\" Copyright (c) 2000 Stephen Montgomery-Smith
+.\" All rights reserved.
+.\" 
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. Neither the name of Stephen Montgomery-Smith nor the names of his 
+.\"    contributors may be used to endorse or promote products derived from 
+.\"    this software without specific prior written permission.
+.\" 
+.\" THIS SOFTWARE IS PROVIDED BY THE STEPHEN MONTGOMERY-SMITH AND CONTRIBUTORS 
+.\" ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED 
+.\" TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+.\" PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL STEPHEN MONTGOMERY-SMITH OR 
+.\" CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+.\" EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+.\" OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+.\" POSSIBILITY OF SUCH DAMAGE.
+.\" 
+.TH XSET 1 "Release 6.4" "X Version 11"
+.SH NAME
+xkbset - user preference utility for XKB extensions for X
+.SH SYNOPSIS
+.B xkbset 
+h | \fIoptions\fP | exp \fIexpire-options\fP | q [exp] | w [exp]
+
+where \fIoptions\fP are any or all of:
+
+[-]{bell | b}
+
+[-]{repeatkeys \fIper-key_repeat> | r <per_key_repeat\fP}
+
+perkeyrepeat \fIper-key_repeat\fP
+
+[-]{repeatkeys | r} [rate \fIrepeat-delay> [<repeat_interval\fP]]
+
+[-]{mousekeys | m} [\fImk-dflt_btn\fP]
+
+[-]{mousekeysaccel | ma} [\fImk-delay> <mk_interval> <mk_time_to_max\fP 
+\fImk-max_speed> <mk_curve\fP]
+
+[-]{accessx | a}
+
+[-]{sticky | st} [[-]twokey | [-]latchlock]...
+
+[-]{slowkeys | sl} [\fIslow-keys_delay\fP]
+
+[-]{bouncekeys | bo} [\fIdebounce-delay\fP]
+
+[-]{feedback | f} [[-]dumbbell | [-]led | [-]feature | [-]slowwarn | 
+[-]slowpress | [-]slowaccept | [-]slowreject | [-]slowrelease | 
+[-]bouncereject | [-]stickybeep]...
+
+[-]{overlay1 | ov1}
+
+[-]{overlay2 | ov2}
+
+groupswrap {redirect | clamp | wrap} [\fIgroups-wrap\fP]
+
+[-]ignoregrouplock
+
+nullify [[-]shift | [-]lock | [-]control | [-]mod1 | [-]mod2 | [-]mod3 | [-]mod4 | 
+[-]mod5]...
+
+ignorelock [[-]shift | [-]lock | [-]control | [-]mod1 | [-]mod2 | [-]mod3 | 
+[-]mod4 | [-]mod5]...
+
+
+and where \fIexpire-options\fP are any or all of:
+
+\fIax-timeout\fP
+
+[-|=]{bell | b}
+
+[-|=]{repeatkeys | r}
+
+[-|=]{mousekeys | m}
+
+[-|=]{mousekeysaccel | ma}
+
+[-|=]{accessx | a}
+
+[-|=]{sticky | st} [[-|=]twokey | [-|=]latchlock]...
+
+[-|=]{slowkeys | sl}
+
+[-|=]{bouncekeys | bo}
+
+[-|=]{feedback | f} [[-|=]dumbbell | [-|=]led | [-|=]feature | [-|=]slowwarn | 
+[-|=]slowpress | [-|=]slowaccept | [-|=]slowreject | [-|=]slowrelease | 
+[-|=]bouncereject | [-|=]stickybeep]...
+
+[-|=]{overlay1 | ov1}
+
+[-|=]{overlay2 | ov2}
+
+[-|=]ignoregrouplock
+
+
+.SH DESCRIPTION
+This program can be used to set various options available in the XKB
+extensions.  This includes such things as 
+.B mousekeys
+where one can use the numeric pad keys to move the mouse;
+.B stickykeys
+where modifiers like control and shift will lock until the
+next key press (good for one finger typing);
+.B slowkeys
+where the keys will not work unless they are pressed for a certain
+amount of time; and
+.B bouncekeys
+in which if a key is pressed more than once rapidly, only one key
+press will be registered.
+.SH OPTIONS
+.PP
+.TP 8
+.B h
+The \fBh\fP option (or no options) will type a rather helpful usage
+message - definitely more informative than this unfinished man page.
+.PP
+.TP 8
+.B b
+The \fBb\fP option controls whether the bell is switched on or off.
+.PP
+.TP 8
+.B repeatkeys|r
+This option can be used to switch the .....
+.SH BUGS
+Right now mousekeys acceleration does not work properly.  Also, the
+.B perkeyrepeat
+option (or
+.B repeatkey
+followed by a key code) do not work.  These are due to bugs in the
+XKB extensions.  The author has identified the cause of these bugs, and
+hopes that these will be fixed in future versions of X.
+.SH "SEE ALSO"
+xset(1)
+.SH AUTHOR
+Stephen Montgomery-Smith, University of Missouri

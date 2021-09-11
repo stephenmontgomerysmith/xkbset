@@ -1,0 +1,255 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2000 Stephen Montgomery-Smith
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# 3. Neither the name of Stephen Montgomery-Smith nor the names of his 
+#    contributors may be used to endorse or promote products derived from 
+#    this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE STEPHEN MONTGOMERY-SMITH AND CONTRIBUTORS 
+# ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED 
+# TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+# PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL STEPHEN MONTGOMERY-SMITH OR 
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+# OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+# POSSIBILITY OF SUCH DAMAGE.
+
+use Tk;
+
+my $mousekeys = 0;
+my $mousekeysaccel = 1;
+my $mk_delay = 160;
+my $mk_interval = 40;
+my $mk_time_to_max = 30;
+my $mk_max_speed = 30;
+my $mk_curve = 500;
+
+my $mw = MainWindow->new;
+
+$mw->title("MouseKeys Acceleration Management");
+
+read_values(`xkbset w`);
+
+do_widgets();
+
+MainLoop;
+
+sub do_widgets {
+
+  $outer_frame_mk_delay = $mw->Frame(-borderwidth=>5)->pack;
+  $frame_mk_delay = $outer_frame_mk_delay->Frame(-borderwidth=>2,-relief=>"groove")->pack;
+
+  $outer_frame_mk_interval = $mw->Frame(-borderwidth=>5)->pack;
+  $frame_mk_interval = $outer_frame_mk_interval->Frame(-borderwidth=>2,-relief=>"groove")->pack;
+
+  $outer_frame_mk_time_to_max = $mw->Frame(-borderwidth=>5)->pack;
+  $frame_mk_time_to_max = $outer_frame_mk_time_to_max->Frame(-borderwidth=>2,-relief=>"groove")->pack;
+
+  $outer_frame_mk_max_speed = $mw->Frame(-borderwidth=>5)->pack;
+  $frame_mk_max_speed = $outer_frame_mk_max_speed->Frame(-borderwidth=>2,-relief=>"groove")->pack;
+
+  $outer_frame_mk_curve = $mw->Frame(-borderwidth=>5)->pack;
+  $frame_mk_curve = $outer_frame_mk_curve->Frame(-borderwidth=>2,-relief=>"groove")->pack;
+
+
+  $outer_frame_mouse_buttons = $mw->Frame(-borderwidth=>5)->pack;
+  $frame_mouse_buttons = $outer_frame_mouse_buttons->Frame(-borderwidth=>2,-relief=>"groove")->pack;
+
+  $outer_frame_canvas = $mw->Frame(-borderwidth=>5)->pack;
+  $frame_canvas = $outer_frame_canvas->Frame(-borderwidth=>2,-relief=>"groove")->pack;
+  $frame_canvas->Label(-textvariable=>\$inform,-justify=>"left")
+       ->pack(-anchor=>"w");
+  $canvas = 
+  $frame_canvas->Canvas(-height=>220,width=>500,-borderwidth=>0)
+       ->pack;
+
+  $outer_frame_set_buttons = $mw->Frame(-borderwidth=>5)->pack;
+  $frame_set_buttons = $outer_frame_set_buttons->Frame(-borderwidth=>2,-relief=>"groove")->pack;
+  $frame_set_buttons->Button(-text=>"Rescale scales",-command=>\&do_scale_widgets)
+       ->pack(-side=>"left",-expand=>1);
+  $frame_set_buttons->Button(-text=>"Restore values",
+       -command=>sub{read_values(`xkbset w`);do_scale_widgets()})
+       ->pack(-side=>"left",-expand=>1);
+  $frame_set_buttons->Button(-text=>"Apply Changes",-command=>\&apply_changes)
+       ->pack(-side=>"left",-expand=>1);
+  $frame_set_buttons->Button(-text=>"Quit",
+       -command=>sub{exit})
+       ->pack(-side=>"left",-expand=>1);
+
+  do_scale_widgets();
+}
+
+sub do_scale_widgets {
+
+  $scale_mk_delay->destroy() if Tk::Exists($scale_mk_delay);
+  $scale_mk_delay =
+  $frame_mk_delay->Scale(-variable=>\$mk_delay,
+             -from=>1,-to=>10+3*$mk_delay,-resolution=>1,
+             -orient=>"horizontal",
+             -command=>\&draw_curve,
+             -borderwidth=>0,
+             -length=>500)->pack;
+  $label_mk_delay->destroy() if Tk::Exists($label_mk_delay);
+  $label_mk_delay =
+  $frame_mk_delay->Label(-text=>"Delay before acceleration starts (milliseconds)"
+             )->pack(-anchor=>"w");
+
+
+  $scale_mk_interval->destroy() if Tk::Exists($scale_mk_interval);
+  $scale_mk_interval =
+  $frame_mk_interval->Scale(-variable=>\$mk_interval,
+             -from=>1,-to=>10+3*$mk_interval,-resolution=>1,
+             -orient=>"horizontal",
+             -command=>\&draw_curve,
+             -borderwidth=>0,
+             -length=>500)->pack;
+  $label_mk_interval->destroy() if Tk::Exists($label_mk_interval);
+  $label_mk_interval =
+  $frame_mk_interval->Label(-text=>"Time between pointer movements (milliseconds)"
+             )->pack(-anchor=>"w");
+
+  $scale_mk_time_to_max->destroy() if Tk::Exists($scale_mk_time_to_max);
+  $scale_mk_time_to_max =
+  $frame_mk_time_to_max->Scale(-variable=>\$mk_time_to_max,
+             -from=>1,-to=>10+3*$mk_time_to_max,-resolution=>1,
+             -orient=>"horizontal",
+             -command=>\&draw_curve,
+             -borderwidth=>0,
+             -length=>500)->pack;
+  $label_mk_time_to_max->destroy() if Tk::Exists($label_mk_time_to_max);
+  $label_mk_time_to_max =
+  $frame_mk_time_to_max->Label(-text=>"Number of pointer movements before accleration completed"
+             )->pack(-anchor=>"w");
+
+  $scale_mk_max_speed->destroy() if Tk::Exists($scale_mk_max_speed);
+  $scale_mk_max_speed =
+  $frame_mk_max_speed->Scale(-variable=>\$mk_max_speed,
+             -from=>1,-to=>10+3*$mk_max_speed,-resolution=>1,
+             -orient=>"horizontal",
+             -command=>\&draw_curve,
+             -borderwidth=>0,
+             -length=>500)->pack;
+  $label_mk_max_speed->destroy() if Tk::Exists($label_mk_max_speed);
+  $label_mk_max_speed =
+  $frame_mk_max_speed->Label(-text=>"Speed (pixels per pointer movement) after acceleration completed"
+             )->pack(-anchor=>"w");
+
+  $mk_curve_to = $mk_curve*3<5000 ? 5000 : 3*$mk_curve;
+  $mk_curve_to = 32000 if $mk_curve_to > 32000;
+  $scale_mk_curve->destroy() if Tk::Exists($scale_mk_curve);
+  $scale_mk_curve =
+  $frame_mk_curve->Scale(-variable=>\$mk_curve,
+             -from=>-1000,-to=>$mk_curve_to,-resolution=>100,
+             -orient=>"horizontal",
+             -command=>\&draw_curve,
+             -borderwidth=>0,
+             -length=>500)->pack;
+  $label_mk_curve->destroy() if Tk::Exists($label_mk_curve);
+  $label_mk_curve =
+  $frame_mk_curve->Label(-text=>"Acceleration curve factor"
+             )->pack(-anchor=>"w");
+
+  $mousekeysinfo=$mousekeys?
+                       "MouseKeys Enabled":
+                       "MouseKeys Disabled";
+  $mouse_button->destroy() if Tk::Exists($mouse_button);
+  $mouse_button = 
+  $frame_mouse_buttons->Button(-textvariable=>\$mousekeysinfo,
+       -command=>sub{$mousekeys^=1;
+                     $mousekeysinfo=$mousekeys?
+                       "MouseKeys Enabled":
+                       "MouseKeys Disabled"})
+       ->pack(-side=>"left",-expand=>1);
+
+  $mousekeysaccelinfo=$mousekeysaccel?
+                       "Acceleration Enabled":
+                       "Acceleration Disabled";
+  $mouseaccel_button->destroy() if Tk::Exists($mouseaccel_button);
+  $mouseaccel_button = 
+  $frame_mouse_buttons->Button(-textvariable=>\$mousekeysaccelinfo,
+       -command=>sub{$mousekeysaccel^=1;
+                     $mousekeysaccelinfo=$mousekeysaccel?
+                       "Acceleration Enabled":
+                       "Acceleration Disabled"})
+       ->pack(-side=>"left",-expand=>1);
+
+
+}
+
+sub draw_curve {
+  my $alpha = 1 + $mk_curve/1000;
+  my @coords;
+  $canvas->delete("all");
+
+  $xscale = 500/($mk_delay+$mk_time_to_max*$mk_interval*1.5);
+
+  @coords = (0,10+210,$mk_delay*$xscale,10+210,
+             $mk_delay*$xscale,10+200*(1-1/$mk_max_speed));
+  if ($alpha == 0) {
+    push(@coords,$mk_delay*$xscale,10,500,10);
+  }
+  else {
+    if ($mk_time_to_max > 0) {
+#      for ($n=0;$n<=$mk_time_to_max+0.05;$n+=0.1) {
+      for ($t=0;$t<=100;$t++) {
+        $n=$t*$mk_time_to_max/100;
+        $x=$mk_delay+$n*$mk_interval;
+        $y=(1+($mk_max_speed-1)*pow($n/$mk_time_to_max,$alpha))/$mk_max_speed;
+        push(@coords,$x*$xscale,10+200*(1-$y));
+      } 
+    } else {
+# ???        push(@coords,
+    }
+  } 
+  push(@coords,500,10);
+  $canvas->createLine(@coords);
+  $canvas->createText($mk_delay*$xscale,210,
+           -text=>$mk_delay . " ms",-anchor=>"w");
+  $canvas->createText(0,10+200*(1-1/$mk_max_speed),
+           -text=>int(1000/$mk_interval) . " pix/s",-anchor=>"sw")
+    if $mk_max_speed != 1;
+  $canvas->createText(0,10,
+           -text=>int(1000*$mk_max_speed/$mk_interval) . " pix/s",-anchor=>"w");
+  $canvas->createText(($mk_delay+$mk_time_to_max*$mk_interval)*$xscale,210,
+           -text=>($mk_delay+$mk_time_to_max*$mk_interval)." ms");
+  $inform = "Total time until full acceleration is " .
+            ($mk_delay+$mk_time_to_max*$mk_interval) . " milliseconds\n" .
+            "Initial speed is " . int(1000/$mk_interval) . " pixels per second\n" .
+            "Max speed is " . int(1000*$mk_max_speed/$mk_interval) . " pixels per second\n\n" .
+            "Velocity/Time graph";
+}
+
+sub pow {
+  return $_[0] == 0 ? 0 : exp($_[1]*log($_[0]));
+}
+
+sub read_values {
+  if ($_[0] =~ / (\-?)ma (\d+) (\d+) (\d+) (\d+) (\d+) /) {
+    $mousekeysaccel = $1 ne '-';
+    $mk_delay = $2;
+    $mk_interval = $3;
+    $mk_time_to_max = $4;
+    $mk_max_speed = $5;
+    $mk_curve = $6;
+  }
+  if ($_[0] =~ / (\-?)m /) {
+    $mousekeys = $1 ne '-';
+  }
+}
+
+sub apply_changes {
+  system "xkbset " . ($mousekeys?"":"-") . "m " . ($mousekeysaccel?"":"-") . "ma $mk_delay $mk_interval $mk_time_to_max $mk_max_speed $mk_curve";
+}
