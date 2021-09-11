@@ -1,5 +1,5 @@
-X11PREFIX=/usr/X11R6
-X11BASE=/usr/X11R6
+X11PREFIX=/usr/local
+X11BASE=/usr/local
 
 INSTALL_BIN=${DESTDIR}${X11PREFIX}/bin
 INSTALL_MAN1=${DESTDIR}${X11PREFIX}/man/man1
@@ -11,22 +11,22 @@ LIBS=-lX11
 all: xkbset xkbset.1
 
 xkbset: getargs.o print.o usage.o main.o misc.o
-	${CC} ${CFLAGS} ${INC_PATH} ${LIB_PATH} getargs.o print.o usage.o main.o misc.o -o $@ ${LIBS}
+	${CC} ${CFLAGS} ${LDFLAGS} ${INC_PATH} ${LIB_PATH} getargs.o print.o usage.o main.o misc.o -o $@ ${LIBS}
 
 getargs.o: getargs.c xkbset.h
-	${CC} ${CFLAGS} ${INC_PATH} ${LIB_PATH} -c getargs.c
+	${CC} ${CPPFLAGS} ${CFLAGS} ${INC_PATH} -c getargs.c
 
 print.o: print.c xkbset.h
-	${CC} ${CFLAGS} ${INC_PATH} ${LIB_PATH} -c print.c
+	${CC} ${CPPFLAGS} ${CFLAGS} ${INC_PATH} -c print.c
 
 usage.o: usage.c xkbset.h
-	${CC} ${CFLAGS} ${INC_PATH} ${LIB_PATH} -c usage.c
+	${CC} ${CPPFLAGS} ${CFLAGS} ${INC_PATH} -c usage.c
 
 main.o: main.c xkbset.h
-	${CC} ${CFLAGS} ${INC_PATH} ${LIB_PATH} -c main.c
+	${CC} ${CPPFLAGS} ${CFLAGS} ${INC_PATH} -c main.c
 
 misc.o: misc.c xkbset.h
-	${CC} ${CFLAGS} ${INC_PATH} ${LIB_PATH} -c misc.c
+	${CC} ${CPPFLAGS} ${CFLAGS} ${INC_PATH} -c misc.c
 
 getargs.c: create_getargs config_getargs
 	perl create_getargs

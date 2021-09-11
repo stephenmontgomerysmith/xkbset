@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright (c) 2000, 2002 Stephen Montgomery-Smith
+# Copyright (c) 2000, 2002, 2020 Stephen Montgomery-Smith
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,9 @@ while ($line = <CONFIG>) {
     if ($type =~ /^MASK\_(.*)$/) {
       $output .= "printf(\"$title = %s\\n\", (ctrls->$field & $1)?\"On\":\"Off\");\n";
       die "mask error\n" if !$last_needs_mask;
-      $outputline .= "printf(\" %s\",\"$last_needs_mask\" + ((ctrls->$field & $1) != 0));\n";
+      $last_needs_mask_head = substr $last_needs_mask, 0, 1;
+      $last_needs_mask_tail = substr $last_needs_mask, 1;
+      $outputline .= "printf(\" %s%s\", ctrls->$field & $1?\"\":\"$last_needs_mask_head\", \"$last_needs_mask_tail\");\n";
       $last_needs_mask = '';
     }
     elsif ($last_needs_mask) {
