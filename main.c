@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2000 Stephen Montgomery-Smith
+Copyright (c) 2000, 2002 Stephen Montgomery-Smith
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
   XkbDescPtr xkb;
   unsigned int mask = 0;
   Bool query, write_line, expire, query_expire, write_line_expire;
+  Status status;
 
   if (argc == 1) {
     print_usage();
@@ -86,6 +87,9 @@ int main(int argc, char *argv[]) {
       case XkbOD_ConnectionRefused:
         fprintf(stderr, "Unable to open display\n");
         break;
+      default:
+        fprintf(stderr, "Unknown error in XkbOpenDisplay\n");
+        break;
     }
     exit(1);
   }
@@ -95,7 +99,24 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "XKB not supported for display %s\n", getenv("DISPLAY"));
     exit(1);
   }
-  XkbGetControls(display, XkbAccessXTimeoutMask|XkbAllControlsMask, xkb);
+
+  status = XkbGetControls(display, XkbAccessXTimeoutMask|XkbAllControlsMask, xkb);
+  switch(status) {
+    case Success:
+      break;
+    case BadAlloc:
+      fprintf(stderr,"Allocation error in XkbGetControls\n");
+      exit(1);
+    case BadMatch:
+      fprintf(stderr,"Bad match in  XkbGetControls\n");
+      exit(1);
+    case BadImplementation:
+      fprintf(stderr,"Bad implementation in  XkbGetControls\n");
+      exit(1);
+    default:
+      fprintf(stderr,"Unknown error in  XkbGetControls\n");
+      exit(1);
+  }
 
   if (query) {
     print_controls(xkb->ctrls);
@@ -125,6 +146,5 @@ int main(int argc, char *argv[]) {
   }
 
   XCloseDisplay(display);
-  return(0);
+  exit(0);
 }
-

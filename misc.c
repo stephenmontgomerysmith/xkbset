@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2000 Stephen Montgomery-Smith
+Copyright (c) 2000, 2002 Stephen Montgomery-Smith
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

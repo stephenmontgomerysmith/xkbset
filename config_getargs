@@ -1,4 +1,4 @@
-# Copyright (c) 2000 Stephen Montgomery-Smith
+# Copyright (c) 2000, 2002 Stephen Montgomery-Smith
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ perkeyrepeat %64x:
 CHAR_ARRAY32 per_key_repeat XkbPerKeyRepeatMask;
 
 #C To switch autorepeat on or off, and optionally set the delay before
-#C the first repeat and the interval between repeats:
+#C the first repeat and the interval between repeats (times in milliseconds):
 repeatkeys|r:
 MASK_XkbRepeatKeysMask enabled_ctrls XkbControlsEnabledMask {
   rate %d:
@@ -84,15 +84,16 @@ MASK_XkbStickyKeysMask enabled_ctrls XkbControlsEnabledMask {
   MASK_XkbAX_LatchToLockMask ax_options XkbStickyKeysMask;
 }
 
-#C To switch on slowkeys, and optionally set the slow key delay:
+#C To switch on slowkeys, and optionally set the slow key delay (in
+#C milliseconds):
 slowkeys | sl:
 MASK_XkbSlowKeysMask enabled_ctrls XkbControlsEnabledMask {
   %d:
   USHORT slow_keys_delay XkbSlowKeysMask;
 }
 
-#C To switch on bouncekeys, and optionally set the time for which
-#C if the key is pressed again in that time it will not work:
+#C To switch on bouncekeys, and optionally set the time (in milliseconds) for
+#C which if the key is pressed again in that time it will not work:
 bouncekeys | bo:
 MASK_XkbBounceKeysMask enabled_ctrls XkbControlsEnabledMask {
   %d:

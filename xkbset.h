@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2000 Stephen Montgomery-Smith
+Copyright (c) 2000, 2002 Stephen Montgomery-Smith
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <X11/XKBlib.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 
 Bool get_arguments(int argc, char *argv[], XkbControlsPtr ctrls, unsigned int *mask);
 Bool get_expire_arguments(int argc, char *argv[], XkbControlsPtr ctrls, unsigned int *mask);

@@ -12,7 +12,7 @@ This includes customizing the following:
   BounceKeys: If a key is pressed more than once rapidly, only one key
               press will be registered.
 
-I also include a gui program mskacc-gui which is a GUI program to play
+I also include a gui program xkbset-gui which is a GUI program to play
 with the mousekeys acceleration parameters.  It is written in Perl/Tk,
 so Perl/Tk will need to be installed on your machine.
 
