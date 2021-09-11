@@ -305,6 +305,7 @@ sub process_expire {
                     "}\n" .
                     "else if (argv[i][0] == '=') {\n" .
                     "  ctrls->$axmask &= ~$1;\n" .
+                    "  ctrls->$axvalues &= ~$1;\n" .
                     "}\n" .
                     "else {\n" .
                     "  ctrls->$axmask |= $1;\n" .

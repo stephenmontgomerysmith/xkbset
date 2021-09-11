@@ -1,10 +1,14 @@
 # The following are for XFree86 on FreeBSD
-INC_PATH=-I/usr/X11R6/include
-LIB_PATH=-L/usr/X11R6/lib
+X11PREFIX=/usr/X11R6
+X11BASE=/usr/X11R6
+
+INSTALL_BIN=${X11PREFIX}/bin
+INSTALL_MAN1=${X11PREFIX}/man/man1
+
+INC_PATH=-I${X11BASE}/include
+LIB_PATH=-L${X11BASE}/lib
 LIBS=-lX11
-CC=cc ${INC_PATH} ${LIB_PATH} -Wall
-INSTALL_BIN=/usr/X11R6/bin
-INSTALL_MAN1=/usr/X11R6/man/man1
+CC=cc ${INC_PATH} ${LIB_PATH} -W -Wall
 
 all: xkbset xkbset.1
 
@@ -44,7 +48,7 @@ xkbset.1: xkbset.man
 
 install: all
 	install -c -s xkbset ${INSTALL_BIN}
-	install -c mskacc-gui ${INSTALL_BIN}
+	install -c xkbset-gui ${INSTALL_BIN}
 	cp xkbset.1 ${INSTALL_MAN1}/.
 
 clean:

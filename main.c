@@ -91,6 +91,10 @@ int main(int argc, char *argv[]) {
   }
 
   xkb = XkbGetKeyboard(display,XkbControlsMask,XkbUseCoreKbd);
+  if (xkb == 0) {
+    fprintf(stderr, "XKB not supported for display %s\n", getenv("DISPLAY"));
+    exit(1);
+  }
   XkbGetControls(display, XkbAccessXTimeoutMask|XkbAllControlsMask, xkb);
 
   if (query) {

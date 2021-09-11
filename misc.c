@@ -32,7 +32,7 @@ POSSIBILITY OF SUCH DAMAGE.
 Bool get_number(char *arg, int low, int high, int *val) {
   int i;
 
-  for (i=0;i<strlen(arg);i++)
+  for (i=0;i<(int)strlen(arg);i++)
     if ((arg[i]<'0' || arg[i]>'9') && (i!=0 || arg[0]!='-'))
       return 0;
   *val = atoi(arg);
