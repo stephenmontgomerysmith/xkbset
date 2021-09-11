@@ -76,8 +76,17 @@ int main(int argc, char *argv[]) {
   display = XkbOpenDisplay(NULL, 
                 &event_rtrn, &error_rtrn, &major_in_out, 
                 &minor_in_out, &reason_rtrn);
-  if (reason_rtrn != 0) {
-    fprintf(stderr, "Unable to open display or XKB extensions\n");
+  if (reason_rtrn != XkbOD_Success) {
+    switch(reason_rtrn) {
+      case XkbOD_BadLibraryVersion:
+      case XkbOD_BadServerVersion:
+      case XkbOD_NonXkbServer:
+        fprintf(stderr,"Non-existent or incompatible XKB library version\n");
+        break;
+      case XkbOD_ConnectionRefused:
+        fprintf(stderr, "Unable to open display\n");
+        break;
+    }
     exit(1);
   }
 
