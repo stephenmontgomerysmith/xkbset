@@ -45,7 +45,7 @@ xkbset.1.gz: xkbset.man
 install: all
 	install -c -s xkbset ${INSTALL_BIN}
 	install -c mskacc-gui ${INSTALL_BIN}
-	cp xkbset.1.gz ${INSTALL_MAN}/.
+	cp xkbset.1.gz ${INSTALL_MAN1}/.
 
 clean:
 	rm -f *.o getargs.c print.c usage.c *.core xkbset config_usage xkbset.1.gz

@@ -16,8 +16,12 @@ I also include a gui program mskacc-gui which is a GUI program to play
 with the mousekeys acceleration parameters.  It is written in Perl/Tk,
 so Perl/Tk will need to be installed on your machine.
 
-If you have any improvents or ideas, please send them to:
+If you have any improvents or ideas, please send them to me.
+
+Also, if you use this program and like it, please tell me so.  If I
+don't get much feedback, I will assume no one is interested, and
+I won't develop it further (in particular I won't finish the man page).
 
 Stephen Montgomery-Smith
-http://www.math.missouri.edu/~stephen
 stephen@math.missouri.edu
+http://www.math.missouri.edu/~stephen

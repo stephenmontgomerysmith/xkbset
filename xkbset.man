@@ -120,27 +120,43 @@ amount of time; and
 in which if a key is pressed more than once rapidly, only one key
 press will be registered.
 .SH OPTIONS
+.\-------------------- b
+.PP
+.TP 8
+.B b
+The \fBb\fP option controls whether the bell is switched on or off.
+.\-------------------- h
 .PP
 .TP 8
 .B h
 The \fBh\fP option (or no options) will type a rather helpful usage
 message - definitely more informative than this unfinished man page.
-.PP
+.\-------------------- perkeyrepeat
 .TP 8
-.B b
-The \fBb\fP option controls whether the bell is switched on or off.
-.PP
+.B perkeyrepeat \fIhex-mask\fP
+With this option, \fIhex-mask\fP is a sequence of 64 hex digits,
+representing 32 bytes.  These bytes represent which keys will autorepeat,
+and which will not.  The 8n+kth key will autorepeat if the kth bit
+of the nth byte is set.  See also the \fBr\fP or the \fBrepeatkey\fP
+option.
+.\-------------------- r
 .TP 8
-.B repeatkeys|r
-This option can be used to switch the .....
+.B repeatkeys|r [\fIkey-code\fP | \fBrate\fP \fIdelay\fP [\fIinterval\fP] ]
+The \fBr\fP or \fBrepeatkey\fP  option can be used to control the
+autorepeat feature.  By itself, it can switch the autorepeat on
+or off.  Followed by a single number, it can be used
+to switch autorepeat on or off for that particular keycode (see also the
+\fBperkeyrepeat\fP option).  Followed by \fBrate\fP, it can be used
+to set the time in milliseconds after the key is pressed before autorepeat
+will start, and optionally the time in milliseconds between the key
+repeats.
 .SH BUGS
 Right now mousekeys acceleration does not work properly.  Also, the
 .B perkeyrepeat
 option (or
 .B repeatkey
 followed by a key code) do not work.  These are due to bugs in the
-XKB extensions.  The author has identified the cause of these bugs, and
-hopes that these will be fixed in future versions of X.
+XKB extensions.  These bugs should be fixed in future versions of X.
 .SH "SEE ALSO"
 xset(1)
 .SH AUTHOR
