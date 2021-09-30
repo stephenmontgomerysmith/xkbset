@@ -27,19 +27,20 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 # POSSIBILITY OF SUCH DAMAGE.
 
+# Split configuration file into atoms in @atomlist.
 sub fetchatoms {
   @atomlist = ();
   open(CONFIG,"config_getargs");
   while ($line = <CONFIG>) {
-    if ($line =~ /^\#/) {
+    if ($line =~ /^\#/) { # store comments verbatum.
       push(@atomlist,$line);
     } else {
       while (1) {
-        next if ($line =~ s/^\s+//);
-        if ($line =~ s/^\"([^\"]*)\"//) {}
-        elsif ($line =~ s/^([a-zA-Z\_][a-zA-Z\_0-9]*)//) {}
-        elsif ($line =~ s/^(\%\d*[a-zA-Z])//) {}
-        elsif ($line =~ s/^(\S)//) {}
+        next if ($line =~ s/^\s+//); # Remove whitespace.
+        if ($line =~ s/^\"([^\"]*)\"//) {} # get things in quotes verbatum.
+        elsif ($line =~ s/^([a-zA-Z\_][a-zA-Z\_0-9]*)//) {} # get c-style variable names.
+        elsif ($line =~ s/^(\%\d*[a-zA-Z])//) {} # get printf style tokens.
+        elsif ($line =~ s/^(\S)//) {} # get a single non-whitespace character.
         else { last }
         push(@atomlist,$1);
       }
