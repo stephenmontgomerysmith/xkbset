@@ -27,25 +27,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 # POSSIBILITY OF SUCH DAMAGE.
 
-sub setatom {
-  $atom = $atomlist[$atomcount];
-  $previousatom = $atomlist[$atomcount-1];
-  $nextatom = $atomlist[$atomcount+1];
-  $atom =~ s/^\d+: // if defined $atom;
-  $previousatom =~ s/^\d+: // if defined $previousatom;
-  $nextatom =~ s/^\d+: // if defined $nextatom;
-}
-
-sub getatom {
-  $atomcount++;
-  setatom;
-}
-
-sub pushatom {
-  $atomcount--;
-  setatom;
-}
-
 sub fetchatoms {
   @atomlist = ();
   open(CONFIG,"config_getargs");
@@ -64,16 +45,15 @@ sub fetchatoms {
   }
   close(CONFIG);
   push(@atomlist,"end");
-  $atomcount = 0;
-  setatom;
+  $atom = shift @atomlist;
 }
 
 sub enum_value {
   my $enum = '';
-  getatom; $enum = $atom;
-  getatom; die if $atom ne '=';
-  getatom; $enum .= '=' . $atom;
-  getatom;
+  $atom = shift @atomlist; $enum = $atom;
+  $atom = shift @atomlist; die if $atom ne '=';
+  $atom = shift @atomlist; $enum .= '=' . $atom;
+  $atom = shift @atomlist;
   return $enum;
 }
 
@@ -89,7 +69,7 @@ sub sub_title_item {
     $item = "get_64_hex(ARG,char_array_32)" 
   }
   elsif ($atom eq '%e') {
-    getatom;
+    $atom = shift @atomlist;
     die "'{' expected at beginning of enum list\n" if $atom ne '{';
     $item = "ENUM(ARG," . enum_value;
     while ($atom eq ';') {
@@ -98,7 +78,7 @@ sub sub_title_item {
     die "'}' expected at end of enum list - got $atom\n" if $atom ne '}';
     $item .= ')';
   }
-  getatom if defined($item);
+  $atom = shift @atomlist if defined($item);
   return $item;
 }
 
@@ -133,7 +113,7 @@ sub process_item {
   my $title_item;
   $title_item = title_item;
   while ($atom eq '|') {
-    getatom;
+    $atom = shift @atomlist;
     $title_item .= " ||\n    " . title_item;
   }
   die "expected ':'\n" if $atom ne ':';
@@ -142,14 +122,14 @@ sub process_item {
   my %maskhash = ();
   my $n = 1;
   while ($atom =~ /^(\:|\,)$/) {
-    getatom;
+    $atom = shift @atomlist;
     my $type = $atom;
     last if $atom eq '{';
-    getatom;
+    $atom = shift @atomlist;
     my $field = $atom;
-    getatom;
+    $atom = shift @atomlist;
     my $mask = $atom;
-    getatom;
+    $atom = shift @atomlist;
     die "expected three fields\n" if !defined($atom);
 
 #$execute .= "printf(\"executing for $type $field $mask\\n\");\n";
@@ -229,7 +209,7 @@ sub process_item {
   my $inner;
   my $inner_count = 0;
   if ($atom eq '{') {
-    getatom;
+    $atom = shift @atomlist;
     $inner = process_item(keys %maskhash);
     $inner_count++ if $inner;
     while ($atom ne '}') {
@@ -252,7 +232,7 @@ sub process_item {
     $execute .= "while (1) {\n$inner}\n";
   }
 
-  getatom;
+  $atom = shift @atomlist;
   $execute =~ s/^/  /gm;
 #$t=$title_item;
 #$t =~ s/\n/\\n/sg;
@@ -267,7 +247,7 @@ sub process_expire {
   my $title_item;
   $title_item = title_item;
   while ($atom eq '|') {
-    getatom;
+    $atom = shift @atomlist;
     $title_item .= " ||\n    " . title_item;
   }
   die "expected ':'\n" if $atom ne ':';
@@ -276,14 +256,14 @@ sub process_expire {
 
   my $execute = '';
   while ($atom =~ /^(\:|\,)$/) {
-    getatom;
+    $atom = shift @atomlist;
     $type = $atom;
     last if $atom eq '{';
-    getatom;
+    $atom = shift @atomlist;
     my $field = $atom;
-    getatom;
+    $atom = shift @atomlist;
     my $mask = $atom;
-    getatom;
+    $atom = shift @atomlist;
     die "expected three fields\n" if !defined($atom);
 
 #$execute .= "printf(\"executing for $type $field $mask\\n\");\n";
@@ -325,7 +305,7 @@ sub process_expire {
   my $inner;
   my $inner_count = 0;
   if ($atom eq '{') {
-    getatom;
+    $atom = shift @atomlist;
     $inner = process_expire();
     $inner_count++ if $inner;
     while ($atom ne '}') {
@@ -348,7 +328,7 @@ sub process_expire {
     $execute .= "while (1) {\n$inner}\n";
   }
 
-  getatom;
+  $atom = shift @atomlist;
   $execute =~ s/^/  /gm;
 #$t=$title_item;
 #$t =~ s/\n/\\n/sg;
