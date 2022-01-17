@@ -85,8 +85,6 @@ sub do_widgets {
        ->pack(-side=>"left",-expand=>1);
   $frame_set_buttons->Button(-text=>"Apply Changes",-command=>\&apply_changes)
        ->pack(-side=>"left",-expand=>1);
-  $frame_set_buttons->Button(-text=>"Save in .xsession",-command=>\&save_in_xsession)
-       ->pack(-side=>"left",-expand=>1);
   $frame_set_buttons->Button(-text=>"Quit",
        -command=>sub{exit})
        ->pack(-side=>"left",-expand=>1);
@@ -254,14 +252,4 @@ sub read_values {
 
 sub apply_changes {
   system "xkbset " . ($mousekeys?"":"-") . "m " . ($mousekeysaccel?"":"-") . "ma $mk_delay $mk_interval $mk_time_to_max $mk_max_speed $mk_curve";
-}
-
-sub save_in_xsession {
-  if (defined($ENV{"HOME"})) {
-   if (-e "$ENV{'HOME'}/.xsession") {
-    system "perl -i -ne \"print if !/^xkbset /\" $ENV{'HOME'}/.xsession";
-   }
-   system "xkbset w >> $ENV{'HOME'}/.xsession";
-  }
-#  system "xkbset " . ($mousekeys?"":"-") . "m " . ($mousekeysaccel?"":"-") . "ma $mk_delay $mk_interval $mk_time_to_max $mk_max_speed $mk_curve";
 }

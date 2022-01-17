@@ -1,3 +1,4 @@
 xkbset-0.0	The very first version.
 xkbset-0.5	A later version.
 xkbset-0.6	A little cleaning up.
+xkbset-0.7	Remove "save to .xsession" option, as it didn't work.  (Thanks to Samuel Thibault <samuel.thibault@ens-lyon.org>.)
